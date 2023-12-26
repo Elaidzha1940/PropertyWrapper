@@ -8,7 +8,26 @@
 //  */
 
 import SwiftUI
-import Foundation
+
+struct FileManagerProperty {
+    var title: String
+    
+    private var path: URL {
+        FileManager.default
+            .urls(for: .documentDirectory, in: .userDomainMask)
+            .first!
+            .appending(path: "custom_title.txt")
+    }
+    
+    mutating func load() {
+        do {
+            title = try String(contentsOf: path, encoding: .utf8)
+            print("Sucсess read")
+        } catch {
+            print("Error read: \(error)")
+        }
+    }
+}
 
 struct PropertyWrapper: View {
     @State private var title: String = "Starting title"
@@ -31,10 +50,14 @@ struct PropertyWrapper: View {
             .font(.system(size: 20, weight: .bold, design: .rounded))
             .foregroundColor(.mint)
         }
+        .onAppear {
+            
+        }
     }
     private func setTitle(newValue: String) {
-        title = newValue.uppercased()
-        save(newValue: newValue)
+        let uppercased = newValue.uppercased()
+        title = uppercased
+        save(newValue: uppercased)
     }
     
     
@@ -51,6 +74,7 @@ struct PropertyWrapper: View {
             // When atomically is set false, the data is written directly to the specified file path.
             
             try newValue.write(to: path, atomically: false, encoding: .utf8)
+            print(NSHomeDirectory())
             print("Sucсess saved")
         } catch {
             print("Error saving: \(error)")
