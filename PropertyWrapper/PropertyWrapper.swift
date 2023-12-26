@@ -1,7 +1,7 @@
 //  /*
 //
 //  Project: PropertyWrapper
-//  File: ContentView.swift
+//  File: PropertyWrapper.swift
 //  Created by: Elaidzha Shchukin
 //  Date: 25.12.2023
 //
@@ -20,7 +20,16 @@ extension FileManager {
 }
 
 struct FileManagerProperty: DynamicProperty {
-    @State var title: String
+    @State private var title: String
+    
+    var currentValue: String {
+        get {
+            title
+        }
+        nonmutating set {
+            save(newValue: newValue)
+        }
+    }
     
     init(title: String) {
         do {
@@ -49,23 +58,23 @@ struct FileManagerProperty: DynamicProperty {
 }
 
 struct PropertyWrapper: View {
-    //    @State private var title: String = "Starting title"
+    @State private var title: String = "Starting title"
     var fileManagerProperty = FileManagerProperty(title: FileManager.debugDescription())
     
     var body: some View {
         
         VStack(spacing: 40) {
-            Text(fileManagerProperty.title)
+            Text(fileManagerProperty.currentValue)
                 .font(.system(size: 30, weight: .bold, design: .rounded))
             
             Button("Press me 1") {
-                fileManagerProperty.save(newValue: "title 1")
+                fileManagerProperty.currentValue = "title 1"
             }
             .font(.system(size: 20, weight: .bold, design: .rounded))
             .foregroundColor(.mint)
             
             Button("Press me 2") {
-                fileManagerProperty.save(newValue: "title 2")
+                fileManagerProperty.currentValue = "title 2"
             }
             .font(.system(size: 20, weight: .bold, design: .rounded))
             .foregroundColor(.mint)
