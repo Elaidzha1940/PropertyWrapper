@@ -33,6 +33,15 @@ struct FileManagerProperty: DynamicProperty {
         }
     }
     
+    var projectedValue: Binding<String> {
+        Binding {
+            wrappedValue
+        } set: { newValue in
+            wrappedValue = newValue
+        }
+
+    }
+    
     init(wrappedValue: String, _ key: String) {
         self.key = key
         do {
@@ -79,8 +88,7 @@ struct PropertyWrapper: View {
                 .font(.system(size: 30, weight: .bold, design: .rounded))
             Text(title3)
                 .font(.system(size: 30, weight: .bold, design: .rounded))
-            Text(subtitle)
-                .font(.system(size: 30, weight: .bold, design: .rounded))
+           PropertyWrapperChildView(subtitle: $title)
             
             Button("Press me 1") {
                 title = "title 1"
@@ -102,8 +110,13 @@ struct PropertyWrapperChildView: View {
     @Binding var subtitle: String
     
     var body: some View {
-        Text(subtitle)
-            .font(.system(size: 30, weight: .bold, design: .rounded))
+        
+        Button(action: {
+            subtitle = "Another title!"
+        }, label: {
+            Text(subtitle)
+                .font(.system(size: 30, weight: .bold, design: .rounded))
+        })
     }
 }
 
