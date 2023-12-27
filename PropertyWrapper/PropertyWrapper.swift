@@ -33,13 +33,13 @@ struct FileManagerProperty: DynamicProperty {
         }
     }
     
-    init(key: String) {
+    init(wrappedValue: String, _ key: String) {
         self.key = key
         do {
             self.title = try String(contentsOf: FileManager.documentsPath(key: key), encoding: .utf8)
             print("Sucсess read")
         } catch {
-            self.title = "Starting text"
+            self.title = wrappedValue
             print("Error read: \(error)")
         }
     }
@@ -63,9 +63,12 @@ struct FileManagerProperty: DynamicProperty {
 struct PropertyWrapper: View {
     //    @State private var title: String = "Starting title"
     //    var fileManagerProperty = FileManagerProperty(title: FileManager.debugDescription())
-    @AppStorage("title_key") private var title3 = ""
-    @FileManagerProperty(key: "custom_title_1") private var title: String
-    @FileManagerProperty(key: "custom_title_2") private var title2: String
+    //@AppStorage("title_key") private var title3 = ""
+    @FileManagerProperty("custom_title_1") private var title: String = "Staring text"
+    @FileManagerProperty("custom_title_2") private var title2: String = "Staring text 2"
+    @FileManagerProperty("custom_title_3") private var title3: String = "Staring text 3"
+    
+    @State private var subtitle: String = "Subtitle"
     
     var body: some View {
         
@@ -74,7 +77,10 @@ struct PropertyWrapper: View {
                 .font(.system(size: 30, weight: .bold, design: .rounded))
             Text(title2)
                 .font(.system(size: 30, weight: .bold, design: .rounded))
-            
+            Text(title3)
+                .font(.system(size: 30, weight: .bold, design: .rounded))
+            Text(subtitle)
+                .font(.system(size: 30, weight: .bold, design: .rounded))
             
             Button("Press me 1") {
                 title = "title 1"
@@ -84,6 +90,7 @@ struct PropertyWrapper: View {
             
             Button("Press me 2") {
                 title = "title 2"
+                title2 = "Random title"
             }
             .font(.system(size: 20, weight: .bold, design: .rounded))
             .foregroundColor(.mint)
@@ -91,6 +98,14 @@ struct PropertyWrapper: View {
     }
 }
 
+struct PropertyWrapperChildView: View {
+    @Binding var subtitle: String
+    
+    var body: some View {
+        Text(subtitle)
+            .font(.system(size: 30, weight: .bold, design: .rounded))
+    }
+}
 
 #Preview {
     PropertyWrapper()
