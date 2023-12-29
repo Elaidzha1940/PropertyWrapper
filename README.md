@@ -3,7 +3,9 @@ In SwiftUI, a Property Wrapper is a Swift language feature that allows you to ad
 
 @propertyWrapper
 struct Capitalized: DynamicProperty {
+
     @State private var value: String
+    
     var wrappedValue: String {
         get {
             value
@@ -19,6 +21,7 @@ struct Capitalized: DynamicProperty {
 
 struct PropertyWrapper2: View {
     @Capitalized private var title: String = "Hoo"
+    
     var body: some View {
         VStack {
             Button(title) {
