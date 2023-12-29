@@ -13,7 +13,7 @@ import SwiftUI
 struct PropertyWrapperApp: App {
     var body: some Scene {
         WindowGroup {
-            PropertyWrapper()
+            PropertyWrapper2()
         }
     }
 }

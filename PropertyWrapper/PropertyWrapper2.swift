@@ -45,48 +45,46 @@ struct Uppercased: DynamicProperty {
 }
 
 @propertyWrapper
-struct FileManagerCodableProperty: DynamicProperty {
-    @State private var title: String
+struct FileManagerCodableProperty<T:Codable>: DynamicProperty {
+    @State private var value: T?
     let key: String
     
-    var wrappedValue: String {
+    var wrappedValue: T? {
         get {
-            title
+            value
         }
         nonmutating set {
             save(newValue: newValue)
         }
     }
     
-    var projectedValue: Binding<String> {
-        Binding {
-            wrappedValue
-        } set: { newValue in
-            wrappedValue = newValue
-        }
-
-    }
+//    var projectedValue: Binding<String> {
+//        Binding {
+//            wrappedValue
+//        } set: { newValue in
+//            wrappedValue = newValue
+//        }
+//    }
     
-    init(wrappedValue: String, _ key: String) {
+    init(wrappedValue: T?, _ key: String) {
         self.key = key
         do {
-            self.title = try String(contentsOf: FileManager.documentsPath(key: key), encoding: .utf8)
+            let url = FileManager.documentsPath(key: key)
+            let data = try Data(contentsOf: url)
+            let object = try JSONDecoder().decode(T.self, from: data)
+            value = object
             print("Sucсess read")
         } catch {
-            self.title = wrappedValue
+            value = wrappedValue
             print("Error read: \(error)")
         }
     }
     
-    
-    
-    func save(newValue: String) {
+    func save(newValue: T?) {
         do {
-            // When atomically is set true, it means that the data will be written to a temporary file first.
-            // When atomically is set false, the data is written directly to the specified file path.
-            
-            try newValue.write(to: FileManager.documentsPath(key: key), atomically: false, encoding: .utf8)
-            title = newValue
+            let data = try JSONEncoder().encode(newValue)
+            try data.write(to: FileManager.documentsPath(key: key))
+            value = newValue
             print("Sucсess saved")
         } catch {
             print("Error saving: \(error)")
@@ -94,10 +92,16 @@ struct FileManagerCodableProperty: DynamicProperty {
     }
 }
 
+struct User: Codable {
+    let name: String
+    let age: Int
+    let isPremium: Bool
+}
+
 struct PropertyWrapper2: View {
     // @Capitalized private var title: String = "Hoo"
     @Uppercased private var title: String = "Hoo"
-    @FileManagerCodableProperty("user_profile") private var userProfile: String = "Test"
+    @FileManagerCodableProperty("user_profile") private var userProfile: User? = nil
     
     var body: some View {
         
@@ -106,9 +110,12 @@ struct PropertyWrapper2: View {
                 title = "hooooo"
             }
             
-            Button(userProfile) {
-                userProfile = "Another Value"
+            Button(userProfile?.name ?? "no value") {
+                userProfile = User(name: "Eli", age: 69, isPremium: true)
             }
+        }
+        .onAppear {
+            print(NSHomeDirectory())
         }
     }
 }
