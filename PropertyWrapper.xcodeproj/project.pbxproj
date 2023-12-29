@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		E4187B542B3F7D3D000663B8 /* PropertyWrapper2.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4187B532B3F7D3D000663B8 /* PropertyWrapper2.swift */; };
 		E4C8DAC92B39C7B000EA38C9 /* PropertyWrapperApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4C8DAC82B39C7B000EA38C9 /* PropertyWrapperApp.swift */; };
 		E4C8DACB2B39C7B000EA38C9 /* PropertyWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4C8DACA2B39C7B000EA38C9 /* PropertyWrapper.swift */; };
 		E4C8DACD2B39C7B100EA38C9 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E4C8DACC2B39C7B100EA38C9 /* Assets.xcassets */; };
@@ -14,6 +15,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		E4187B532B3F7D3D000663B8 /* PropertyWrapper2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PropertyWrapper2.swift; sourceTree = "<group>"; };
 		E4C8DAC52B39C7B000EA38C9 /* PropertyWrapper.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PropertyWrapper.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		E4C8DAC82B39C7B000EA38C9 /* PropertyWrapperApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PropertyWrapperApp.swift; sourceTree = "<group>"; };
 		E4C8DACA2B39C7B000EA38C9 /* PropertyWrapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PropertyWrapper.swift; sourceTree = "<group>"; };
@@ -53,6 +55,7 @@
 			children = (
 				E4C8DAC82B39C7B000EA38C9 /* PropertyWrapperApp.swift */,
 				E4C8DACA2B39C7B000EA38C9 /* PropertyWrapper.swift */,
+				E4187B532B3F7D3D000663B8 /* PropertyWrapper2.swift */,
 				E4C8DACC2B39C7B100EA38C9 /* Assets.xcassets */,
 				E4C8DACE2B39C7B100EA38C9 /* Preview Content */,
 			);
@@ -137,6 +140,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E4187B542B3F7D3D000663B8 /* PropertyWrapper2.swift in Sources */,
 				E4C8DACB2B39C7B000EA38C9 /* PropertyWrapper.swift in Sources */,
 				E4C8DAC92B39C7B000EA38C9 /* PropertyWrapperApp.swift in Sources */,
 			);
