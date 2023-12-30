@@ -63,26 +63,26 @@ struct FileManagerCodableProperty<T:Codable>: DynamicProperty {
             get: { wrappedValue },
             set: { wrappedValue = $0} )
         
-//        Binding {
-//            wrappedValue
-//        } set: { newValue in
-//            wrappedValue = newValue
-//        }
+        //        Binding {
+        //            wrappedValue
+        //        } set: { newValue in
+        //            wrappedValue = newValue
+        //        }
     }
     
-//    init(_: T?, _ key: String) {
-//        self.key = key
-//        do {
-//            let url = FileManager.documentsPath(key: key)
-//            let data = try Data(contentsOf: url)
-//            let object = try JSONDecoder().decode(T.self, from: data)
-//            _value = State(wrappedValue: object)
-//            print("Sucсess read")
-//        } catch {
-//            _value = State(wrappedValue: nil)
-//            print("Error read: \(error)")
-//        }
-//    }
+    //    init(_: T?, _ key: String) {
+    //        self.key = key
+    //        do {
+    //            let url = FileManager.documentsPath(key: key)
+    //            let data = try Data(contentsOf: url)
+    //            let object = try JSONDecoder().decode(T.self, from: data)
+    //            _value = State(wrappedValue: object)
+    //            print("Sucсess read")
+    //        } catch {
+    //            _value = State(wrappedValue: nil)
+    //            print("Error read: \(error)")
+    //        }
+    //    }
     
     init(_ key: KeyPath<FileManageValues, FileManageKeypath<T>>) {
         let keypath = FileManageValues.shared[ keyPath: key]
@@ -136,10 +136,13 @@ struct FileManageValues {
     let userProfile = FileManageKeypath(key: "user_profile", type: User.self)
 }
 
+import Combine
+
 @propertyWrapper
 struct FileManagerCodableStreamableProperty<T:Codable>: DynamicProperty {
     @State private var value: T?
     let key: String
+    private let publisher: CurrentValueSubject<T?, Never>
     
     var wrappedValue: T? {
         get {
@@ -150,31 +153,32 @@ struct FileManagerCodableStreamableProperty<T:Codable>: DynamicProperty {
         }
     }
     
-    var projectedValue: Binding<T?> {
-        Binding(
-            get: { wrappedValue },
-            set: { wrappedValue = $0} )
-        
-//        Binding {
-//            wrappedValue
-//        } set: { newValue in
-//            wrappedValue = newValue
-//        }
+    var projectedValue: CurrentValueSubject<T?, Never> {
+        publisher
     }
     
-//    init(_: T?, _ key: String) {
-//        self.key = key
-//        do {
-//            let url = FileManager.documentsPath(key: key)
-//            let data = try Data(contentsOf: url)
-//            let object = try JSONDecoder().decode(T.self, from: data)
-//            _value = State(wrappedValue: object)
-//            print("Sucсess read")
-//        } catch {
-//            _value = State(wrappedValue: nil)
-//            print("Error read: \(error)")
-//        }
-//    }
+    //    var projectedValue: Binding<T?> {
+    //        Binding(
+    //            get: { wrappedValue },
+    //            set: { wrappedValue = $0} )
+    //    }
+    
+    init(_ key: String) {
+        self.key = key
+        
+        do {
+            let url = FileManager.documentsPath(key: key)
+            let data = try Data(contentsOf: url)
+            let object = try JSONDecoder().decode(T.self, from: data)
+            _value = State(wrappedValue: object)
+            publisher = CurrentValueSubject(object)
+            print("Sucсess read")
+        } catch {
+            _value = State(wrappedValue: nil)
+            publisher = CurrentValueSubject(nil)
+            print("Error read: \(error)")
+        }
+    }
     
     init(_ key: KeyPath<FileManageValues, FileManageKeypath<T>>) {
         let keypath = FileManageValues.shared[ keyPath: key]
@@ -187,18 +191,21 @@ struct FileManagerCodableStreamableProperty<T:Codable>: DynamicProperty {
             let data = try Data(contentsOf: url)
             let object = try JSONDecoder().decode(T.self, from: data)
             _value = State(wrappedValue: object)
+            publisher = CurrentValueSubject(object)
             print("Sucсess read")
         } catch {
             _value = State(wrappedValue: nil)
+            publisher = CurrentValueSubject(nil)
             print("Error read: \(error)")
         }
     }
     
-    func save(newValue: T?) {
+    private func save(newValue: T?) {
         do {
             let data = try JSONEncoder().encode(newValue)
             try data.write(to: FileManager.documentsPath(key: key))
             value = newValue
+            publisher.send(newValue)
             print("Sucсess saved")
         } catch {
             print("Error saving: \(error)")
@@ -213,7 +220,8 @@ struct PropertyWrapper2: View {
     //@FileManagerCodableProperty("user_profile") private var userProfile: User?
     //@FileManagerCodableProperty(FileManageKeys.userProfile.rawValue) private var userProfile: User?
     //@FileManagerCodableProperty(\.userProfile) private var userProfile: User?
-    @FileManagerCodableProperty(\.userProfile) private var userProfile
+    //@FileManagerCodableProperty(\.userProfile) private var userProfile
+    @FileManagerCodableStreamableProperty(\.userProfile) private var userProfile
     
     var body: some View {
         
@@ -221,10 +229,23 @@ struct PropertyWrapper2: View {
             Button(title) {
                 title = "hooooo"
             }
-            SomeBindingView(userProfile: $userProfile)
+            
+            //SomeBindingView(userProfile: $userProfile)
+            
+            Button(userProfile?.name ?? "no value") {
+                userProfile = User(name: "Elai", age: 888, isPremium: true)
+            }
         }
         .onAppear {
             print(NSHomeDirectory())
+        }
+//        .onReceive($userProfile, perform: { newValue in
+//            print("Recieved new value of: \(newValue)")
+//        })
+        .task {
+            for await newValue in $userProfile.values {
+                print("Stream new value of: \(newValue)")
+            }
         }
     }
 }
