@@ -84,10 +84,10 @@ struct FileManagerCodableProperty<T:Codable>: DynamicProperty {
 //        }
 //    }
     
-    init(_ key: KeyPath<FileManageValues, String>) {
+    init(_ key: KeyPath<FileManageValues, FileManageKeypath<T>>) {
         let keypath = FileManageValues.shared[ keyPath: key]
         
-        let key = keypath
+        let key = keypath.key
         self.key = key
         
         do {
@@ -124,19 +124,96 @@ enum FileManageKeys: String {
     case userProfile
 }
 
+struct FileManageKeypath<T:Codable> {
+    let key: String
+    let type:  T.Type
+}
+
 struct FileManageValues {
     static let shared = FileManageValues()
     
     private init() {}
-    let userProfile = "user_profile"
+    let userProfile = FileManageKeypath(key: "user_profile", type: User.self)
 }
+
+@propertyWrapper
+struct FileManagerCodableStreamableProperty<T:Codable>: DynamicProperty {
+    @State private var value: T?
+    let key: String
+    
+    var wrappedValue: T? {
+        get {
+            value
+        }
+        nonmutating set {
+            save(newValue: newValue)
+        }
+    }
+    
+    var projectedValue: Binding<T?> {
+        Binding(
+            get: { wrappedValue },
+            set: { wrappedValue = $0} )
+        
+//        Binding {
+//            wrappedValue
+//        } set: { newValue in
+//            wrappedValue = newValue
+//        }
+    }
+    
+//    init(_: T?, _ key: String) {
+//        self.key = key
+//        do {
+//            let url = FileManager.documentsPath(key: key)
+//            let data = try Data(contentsOf: url)
+//            let object = try JSONDecoder().decode(T.self, from: data)
+//            _value = State(wrappedValue: object)
+//            print("Sucсess read")
+//        } catch {
+//            _value = State(wrappedValue: nil)
+//            print("Error read: \(error)")
+//        }
+//    }
+    
+    init(_ key: KeyPath<FileManageValues, FileManageKeypath<T>>) {
+        let keypath = FileManageValues.shared[ keyPath: key]
+        
+        let key = keypath.key
+        self.key = key
+        
+        do {
+            let url = FileManager.documentsPath(key: key)
+            let data = try Data(contentsOf: url)
+            let object = try JSONDecoder().decode(T.self, from: data)
+            _value = State(wrappedValue: object)
+            print("Sucсess read")
+        } catch {
+            _value = State(wrappedValue: nil)
+            print("Error read: \(error)")
+        }
+    }
+    
+    func save(newValue: T?) {
+        do {
+            let data = try JSONEncoder().encode(newValue)
+            try data.write(to: FileManager.documentsPath(key: key))
+            value = newValue
+            print("Sucсess saved")
+        } catch {
+            print("Error saving: \(error)")
+        }
+    }
+}
+
 
 struct PropertyWrapper2: View {
     // @Capitalized private var title: String = "Hoo"
     @Uppercased private var title: String = "Hoo"
     //@FileManagerCodableProperty("user_profile") private var userProfile: User?
-//    @FileManagerCodableProperty(FileManageKeys.userProfile.rawValue) private var userProfile: User?
-    @FileManagerCodableProperty(\.userProfile) private var userProfile: User?
+    //@FileManagerCodableProperty(FileManageKeys.userProfile.rawValue) private var userProfile: User?
+    //@FileManagerCodableProperty(\.userProfile) private var userProfile: User?
+    @FileManagerCodableProperty(\.userProfile) private var userProfile
     
     var body: some View {
         
@@ -157,7 +234,7 @@ struct SomeBindingView: View {
     
     var body: some View {
         Button(userProfile?.name ?? "no value") {
-            userProfile = User(name: "Eli", age: 69, isPremium: true)
+            userProfile = User(name: "Nastusha", age: 88, isPremium: false)
         }
     }
 }
