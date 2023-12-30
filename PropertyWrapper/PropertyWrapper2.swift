@@ -223,9 +223,9 @@ struct CustomProjectedValue<T:Codable> {
 struct PropertyWrapper2: View {
     // @Capitalized private var title: String = "Hoo"
     @Uppercased private var title: String = "Hoo"
-    //@FileManagerCodableProperty("user_profile") private var userProfile: User?
-    //@FileManagerCodableProperty(FileManageKeys.userProfile.rawValue) private var userProfile: User?
-    //@FileManagerCodableProperty(\.userProfile) private var userProfile: User?
+    // @FileManagerCodableProperty("user_profile") private var userProfile: User?
+    // @FileManagerCodableProperty(FileManageKeys.userProfile.rawValue) private var userProfile: User?
+    // @FileManagerCodableProperty(\.userProfile) private var userProfile: User?
     //@FileManagerCodableProperty(\.userProfile) private var userProfile
     @FileManagerCodableStreamableProperty(\.userProfile) private var userProfile
     

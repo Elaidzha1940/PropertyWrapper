@@ -39,7 +39,7 @@ struct FileManagerProperty: DynamicProperty {
         } set: { newValue in
             wrappedValue = newValue
         }
-
+        
     }
     
     init(wrappedValue: String, _ key: String) {
@@ -52,8 +52,6 @@ struct FileManagerProperty: DynamicProperty {
             print("Error read: \(error)")
         }
     }
-    
-    
     
     func save(newValue: String) {
         do {
@@ -70,9 +68,9 @@ struct FileManagerProperty: DynamicProperty {
 }
 
 struct PropertyWrapper: View {
-    //    @State private var title: String = "Starting title"
-    //    var fileManagerProperty = FileManagerProperty(title: FileManager.debugDescription())
-    //@AppStorage("title_key") private var title3 = ""
+    // @State private var title: String = "Starting title"
+    // var fileManagerProperty = FileManagerProperty(title: FileManager.debugDescription())
+    // @AppStorage("title_key") private var title3 = ""
     @FileManagerProperty("custom_title_1") private var title: String = "Staring text"
     @FileManagerProperty("custom_title_2") private var title2: String = "Staring text 2"
     @FileManagerProperty("custom_title_3") private var title3: String = "Staring text 3"
@@ -88,7 +86,7 @@ struct PropertyWrapper: View {
                 .font(.system(size: 30, weight: .bold, design: .rounded))
             Text(title3)
                 .font(.system(size: 30, weight: .bold, design: .rounded))
-           PropertyWrapperChildView(subtitle: $title)
+            PropertyWrapperChildView(subtitle: $title)
             
             Button("Press me 1") {
                 title = "title 1"
