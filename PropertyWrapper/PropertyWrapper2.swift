@@ -58,24 +58,46 @@ struct FileManagerCodableProperty<T:Codable>: DynamicProperty {
         }
     }
     
-//    var projectedValue: Binding<String> {
+    var projectedValue: Binding<T?> {
+        Binding(
+            get: { wrappedValue },
+            set: { wrappedValue = $0} )
+        
 //        Binding {
 //            wrappedValue
 //        } set: { newValue in
 //            wrappedValue = newValue
 //        }
+    }
+    
+//    init(_: T?, _ key: String) {
+//        self.key = key
+//        do {
+//            let url = FileManager.documentsPath(key: key)
+//            let data = try Data(contentsOf: url)
+//            let object = try JSONDecoder().decode(T.self, from: data)
+//            _value = State(wrappedValue: object)
+//            print("Sucсess read")
+//        } catch {
+//            _value = State(wrappedValue: nil)
+//            print("Error read: \(error)")
+//        }
 //    }
     
-    init(wrappedValue: T?, _ key: String) {
+    init(_ key: KeyPath<FileManageValues, String>) {
+        let keypath = FileManageValues.shared[ keyPath: key]
+        
+        let key = keypath
         self.key = key
+        
         do {
             let url = FileManager.documentsPath(key: key)
             let data = try Data(contentsOf: url)
             let object = try JSONDecoder().decode(T.self, from: data)
-            value = object
+            _value = State(wrappedValue: object)
             print("Sucсess read")
         } catch {
-            value = wrappedValue
+            _value = State(wrappedValue: nil)
             print("Error read: \(error)")
         }
     }
@@ -98,24 +120,44 @@ struct User: Codable {
     let isPremium: Bool
 }
 
+enum FileManageKeys: String {
+    case userProfile
+}
+
+struct FileManageValues {
+    static let shared = FileManageValues()
+    
+    private init() {}
+    let userProfile = "user_profile"
+}
+
 struct PropertyWrapper2: View {
     // @Capitalized private var title: String = "Hoo"
     @Uppercased private var title: String = "Hoo"
-    @FileManagerCodableProperty("user_profile") private var userProfile: User? = nil
+    //@FileManagerCodableProperty("user_profile") private var userProfile: User?
+//    @FileManagerCodableProperty(FileManageKeys.userProfile.rawValue) private var userProfile: User?
+    @FileManagerCodableProperty(\.userProfile) private var userProfile: User?
     
     var body: some View {
         
-        VStack {
+        VStack(spacing: 30 ) {
             Button(title) {
                 title = "hooooo"
             }
-            
-            Button(userProfile?.name ?? "no value") {
-                userProfile = User(name: "Eli", age: 69, isPremium: true)
-            }
+            SomeBindingView(userProfile: $userProfile)
         }
         .onAppear {
             print(NSHomeDirectory())
+        }
+    }
+}
+
+struct SomeBindingView: View {
+    @Binding var userProfile: User?
+    
+    var body: some View {
+        Button(userProfile?.name ?? "no value") {
+            userProfile = User(name: "Eli", age: 69, isPremium: true)
         }
     }
 }
