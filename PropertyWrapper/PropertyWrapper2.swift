@@ -153,15 +153,13 @@ struct FileManagerCodableStreamableProperty<T:Codable>: DynamicProperty {
         }
     }
     
-    var projectedValue: CurrentValueSubject<T?, Never> {
-        publisher
+    var projectedValue: CustomProjectedValue<T> {
+        CustomProjectedValue(
+            binding: Binding(
+                get: { wrappedValue },
+                set: { wrappedValue = $0 }),
+            publisher: publisher)
     }
-    
-    //    var projectedValue: Binding<T?> {
-    //        Binding(
-    //            get: { wrappedValue },
-    //            set: { wrappedValue = $0} )
-    //    }
     
     init(_ key: String) {
         self.key = key
@@ -213,6 +211,14 @@ struct FileManagerCodableStreamableProperty<T:Codable>: DynamicProperty {
     }
 }
 
+struct CustomProjectedValue<T:Codable> {
+    let binding: Binding<T?>
+    let publisher: CurrentValueSubject<T?, Never>
+    
+    var stream: AsyncPublisher<CurrentValueSubject<T?, Never>> {
+        publisher.values
+    }
+}
 
 struct PropertyWrapper2: View {
     // @Capitalized private var title: String = "Hoo"
@@ -230,7 +236,7 @@ struct PropertyWrapper2: View {
                 title = "hooooo"
             }
             
-            //SomeBindingView(userProfile: $userProfile)
+            SomeBindingView(userProfile: $userProfile.binding)
             
             Button(userProfile?.name ?? "no value") {
                 userProfile = User(name: "Elai", age: 888, isPremium: true)
@@ -239,11 +245,11 @@ struct PropertyWrapper2: View {
         .onAppear {
             print(NSHomeDirectory())
         }
-//        .onReceive($userProfile, perform: { newValue in
-//            print("Recieved new value of: \(newValue)")
-//        })
+        .onReceive($userProfile.publisher, perform: { newValue in
+            print("Recieved new value of: \(newValue)")
+        })
         .task {
-            for await newValue in $userProfile.values {
+            for await newValue in $userProfile.stream {
                 print("Stream new value of: \(newValue)")
             }
         }
@@ -255,7 +261,7 @@ struct SomeBindingView: View {
     
     var body: some View {
         Button(userProfile?.name ?? "no value") {
-            userProfile = User(name: "Nastusha", age: 88, isPremium: false)
+            userProfile = User(name: "Eli", age: 88, isPremium: false)
         }
     }
 }
